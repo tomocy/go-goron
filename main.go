@@ -29,7 +29,8 @@ func main() {
 
 	e.Use(middleware.Logger(), middleware.Recover())
 
-	e.GET("/", index)
+	e.GET("/greet/create", greetNew)
+	e.POST("/greet/create", greetCreate)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
@@ -37,15 +38,16 @@ func main() {
 func loadTemplates() {
 	var baseTmpl = "views/layouts/master.html"
 	tmpls = make(map[string]*template.Template)
-	tmpls["index"] = template.Must(template.ParseFiles(baseTmpl, "views/hello.html"))
+	tmpls["greetIndex"] = template.Must(template.ParseFiles(baseTmpl, "views/greet/index.html"))
+	tmpls["greetCreate"] = template.Must(template.ParseFiles(baseTmpl, "views/greet/create.html"))
 }
 
-func index(c echo.Context) error {
-	dat := struct {
-		World string
-	}{
-		World: "aiueo",
-	}
+func greetNew(c echo.Context) error {
+	return c.Render(http.StatusOK, "greetCreate", nil)
+}
 
-	return c.Render(http.StatusOK, "index", dat)
+func greetCreate(c echo.Context) error {
+	obj := c.FormValue("to")
+
+	return c.Render(http.StatusOK, "greetIndex", obj)
 }

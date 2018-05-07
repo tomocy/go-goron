@@ -12,7 +12,7 @@ const (
 )
 
 type command struct {
-	cmd   cmd
-	req   []interface{}
-	resCh chan response
+	cmd    cmd
+	req    []interface{}
+	respCh chan response
 }

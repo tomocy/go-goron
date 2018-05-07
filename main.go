@@ -1,26 +1,22 @@
 package main
 
 import (
-	"html/template"
-	"io"
+	"log"
 	"net/http"
+
+	"github.com/tomocy/goron/session"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
 
-var tmpls map[string]*template.Template
-
-type Template struct {
-}
-
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return tmpls[name].ExecuteTemplate(w, "master.html", data)
-}
+var s session.Session
 
 func init() {
-	loadTemplates()
+	initTemplates()
+	s = session.New()
 }
+
 func main() {
 	e := echo.New()
 
@@ -29,25 +25,30 @@ func main() {
 
 	e.Use(middleware.Logger(), middleware.Recover())
 
-	e.GET("/greet/create", greetNew)
-	e.POST("/greet/create", greetCreate)
+	// e.GET("/greet/create", greetNew)
+	// e.POST("/greet/create", greetCreate)
 
-	e.Logger.Fatal(e.Start(":8080"))
+	e.GET("/count", countIndex)
+
+	e.Start(":8080")
 }
 
-func loadTemplates() {
-	var baseTmpl = "views/layouts/master.html"
-	tmpls = make(map[string]*template.Template)
-	tmpls["greetIndex"] = template.Must(template.ParseFiles(baseTmpl, "views/greet/index.html"))
-	tmpls["greetCreate"] = template.Must(template.ParseFiles(baseTmpl, "views/greet/create.html"))
-}
+func countIndex(c echo.Context) error {
+	cnt := s.Get("count")
+	if cnt == nil {
+		s.Set("count", 0)
+		cnt = 0
+	} else {
+		s.Set("count", cnt.(int)+1)
 
-func greetNew(c echo.Context) error {
-	return c.Render(http.StatusOK, "greetCreate", nil)
-}
+	}
 
-func greetCreate(c echo.Context) error {
-	obj := c.FormValue("to")
+	log.Println(cnt)
 
-	return c.Render(http.StatusOK, "greetIndex", obj)
+	dat := struct {
+		Cnt interface{}
+	}{
+		Cnt: s.Get("count"),
+	}
+	return c.Render(http.StatusOK, "countIndex", dat)
 }

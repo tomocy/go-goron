@@ -1,9 +1,9 @@
 package session
 
-type cmd int
+type cmdType int
 
 const (
-	unknown cmd = iota
+	unknown cmdType = iota
 	create
 	load
 	save
@@ -12,7 +12,7 @@ const (
 )
 
 type command struct {
-	cmd    cmd
-	req    []interface{}
-	respCh chan response
+	cmdType cmdType
+	req     []interface{}
+	respCh  chan response
 }

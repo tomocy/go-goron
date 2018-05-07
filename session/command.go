@@ -5,7 +5,7 @@ type cmdType int
 const (
 	unknown cmdType = iota
 	create
-	load
+	read
 	save
 	destroy
 	destroyExpired

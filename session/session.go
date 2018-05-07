@@ -10,10 +10,12 @@ type Session interface {
 }
 
 type session struct {
-	id        string
+	id        Id
 	dat       map[string]interface{}
 	expiresAt time.Time
 }
+
+type Id string
 
 const expiresIn time.Duration = (3 * time.Minute)
 
@@ -29,6 +31,6 @@ func (s *session) Delete(key string) error {
 	return nil
 }
 
-func (s *session) ID() string {
+func (s *session) ID() Id {
 	return s.id
 }

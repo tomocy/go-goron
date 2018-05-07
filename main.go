@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/tomocy/goron/session"
@@ -42,8 +41,6 @@ func countIndex(c echo.Context) error {
 		s.Set("count", cnt.(int)+1)
 
 	}
-
-	log.Println(cnt)
 
 	dat := struct {
 		Cnt interface{}

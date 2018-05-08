@@ -21,6 +21,7 @@ func initTemplates() {
 	tmpls = make(map[string]*template.Template)
 	// tmpls["greetIndex"] = template.Must(template.ParseFiles(baseTmpl, "views/greet/index.html"))
 	// tmpls["greetCreate"] = template.Must(template.ParseFiles(baseTmpl, "views/greet/create.html"))
+	tmpls["error"] = template.Must(template.ParseFiles(baseTmpl, "views/layouts/error.html"))
 	tmpls["countIndex"] = template.Must(template.ParseFiles(baseTmpl, "views/count.html"))
 }
 

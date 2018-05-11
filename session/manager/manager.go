@@ -9,9 +9,9 @@ import (
 )
 
 type Manager interface {
-	GetSession(string) (session.Session, error)
 	CreateSession() session.Session
-	DestroySession(string) error
+	GetSession(string) (session.Session, error)
+	SetSession(string, map[string]interface{})
 }
 
 type manager struct {
@@ -27,6 +27,12 @@ func New(storageName string) (Manager, error) {
 	return &manager{storage: storage}, nil
 }
 
+func (m *manager) CreateSession() session.Session {
+	sessionID := uuid.New().String()
+
+	return m.storage.InitSession(sessionID)
+}
+
 func (m *manager) GetSession(sessionID string) (session.Session, error) {
 	session, err := m.storage.GetSession(sessionID)
 	if err != nil {
@@ -36,12 +42,6 @@ func (m *manager) GetSession(sessionID string) (session.Session, error) {
 	return session, nil
 }
 
-func (m *manager) CreateSession() session.Session {
-	sessionID := uuid.New().String()
-
-	return m.storage.InitSession(sessionID)
-}
-
-func (m *manager) DestroySession(sessionID string) error {
-	return m.storage.DestroySession(sessionID)
+func (m *manager) SetSession(sessionID string, dat map[string]interface{}) {
+	m.storage.SetSession(sessionID, dat)
 }

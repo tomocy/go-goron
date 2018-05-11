@@ -4,22 +4,21 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/labstack/echo"
 	"github.com/tomocy/goron/settings"
 )
 
-func SetSessionID(c echo.Context, sessionID string) {
+func SetSessionID(w http.ResponseWriter, sessionID string) {
 	cookie := &http.Cookie{
 		Name:    settings.Session.Name,
 		Value:   sessionID,
 		Expires: time.Now().Add(settings.Session.ExpiresIn),
 	}
 
-	c.SetCookie(cookie)
+	http.SetCookie(w, cookie)
 }
 
-func GetSessionID(c echo.Context) (string, error) {
-	cookie, err := c.Cookie(settings.Session.Name)
+func GetSessionID(r *http.Request) (string, error) {
+	cookie, err := r.Cookie(settings.Session.Name)
 	if err != nil {
 		return "", err
 	}
@@ -27,12 +26,12 @@ func GetSessionID(c echo.Context) (string, error) {
 	return cookie.Value, nil
 }
 
-func DestroySessionID(c echo.Context) {
+func DestroySessionID(w http.ResponseWriter) {
 	cookie := &http.Cookie{
 		Name:   settings.Session.Name,
 		Value:  "",
 		MaxAge: -1,
 	}
 
-	c.SetCookie(cookie)
+	http.SetCookie(w, cookie)
 }

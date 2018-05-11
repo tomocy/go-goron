@@ -11,6 +11,7 @@ import (
 type Manager interface {
 	GetSession(string) (session.Session, error)
 	CreateSession() session.Session
+	DestroySession(string) error
 }
 
 type manager struct {
@@ -39,4 +40,8 @@ func (m *manager) CreateSession() session.Session {
 	sessionID := uuid.New().String()
 
 	return m.storage.InitSession(sessionID)
+}
+
+func (m *manager) DestroySession(sessionID string) error {
+	return m.storage.DestroySession(sessionID)
 }

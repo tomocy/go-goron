@@ -31,6 +31,7 @@ func main() {
 	e.GET("/count", countIndex)
 
 	e.Start(":8080")
+
 }
 
 func countIndex(c echo.Context) error {
@@ -44,7 +45,14 @@ func countIndex(c echo.Context) error {
 
 	session, err := sessionManager.GetSession(sessionID)
 	if err != nil {
-		return c.Render(http.StatusInternalServerError, "error", err)
+		// In this case, the storage should be memory
+		// and cookie still remains while session in the memory is empty
+		// So delete the session id in cookie, and recreate session and reset sessino id in cookie
+		cookie.DestroySessionID(c)
+		session = sessionManager.CreateSession()
+		sessionID = session.ID()
+
+		cookie.SetSessionID(c, sessionID)
 	}
 
 	cnt, ok := session.Get("count").(int)

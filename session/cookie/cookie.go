@@ -17,6 +17,7 @@ func SetSessionID(c echo.Context, sessionID string) {
 
 	c.SetCookie(cookie)
 }
+
 func GetSessionID(c echo.Context) (string, error) {
 	cookie, err := c.Cookie(settings.Session.Name)
 	if err != nil {
@@ -24,4 +25,14 @@ func GetSessionID(c echo.Context) (string, error) {
 	}
 
 	return cookie.Value, nil
+}
+
+func DestroySessionID(c echo.Context) {
+	cookie := &http.Cookie{
+		Name:   settings.Session.Name,
+		Value:  "",
+		MaxAge: -1,
+	}
+
+	c.SetCookie(cookie)
 }

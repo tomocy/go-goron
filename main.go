@@ -1,46 +1,36 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/tomocy/goron/session/cookie"
 	"github.com/tomocy/goron/session/manager"
-
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/tomocy/goron/template"
 )
 
 var sessionManager manager.Manager
+var tmpl template.Template
 
 func init() {
-	initTemplates()
+	tmpl = template.New()
 	sessionManager, _ = manager.New("memory")
 }
 
 func main() {
-	e := echo.New()
+	http.HandleFunc("/count", countIndex)
 
-	t := &Template{}
-	e.Renderer = t
-
-	e.Use(middleware.Logger(), middleware.Recover())
-
-	// e.GET("/greet/create", greetNew)
-	// e.POST("/greet/create", greetCreate)
-
-	e.GET("/count", countIndex)
-
-	e.Start(":8080")
-
+	fmt.Println("Listeing :8080 ...")
+	http.ListenAndServe(":8080", nil)
 }
 
-func countIndex(c echo.Context) error {
-	sessionID, err := cookie.GetSessionID(c)
+func countIndex(w http.ResponseWriter, r *http.Request) {
+	sessionID, err := cookie.GetSessionID(r)
 	if err != nil {
 		session := sessionManager.CreateSession()
 		sessionID = session.ID()
 
-		cookie.SetSessionID(c, sessionID)
+		cookie.SetSessionID(w, sessionID)
 	}
 
 	session, err := sessionManager.GetSession(sessionID)
@@ -48,11 +38,11 @@ func countIndex(c echo.Context) error {
 		// In this case, the storage should be memory
 		// and cookie still remains while session in the memory is empty
 		// So delete the session id in cookie, and recreate session and reset sessino id in cookie
-		cookie.DestroySessionID(c)
+		cookie.DestroySessionID(w)
 		session = sessionManager.CreateSession()
 		sessionID = session.ID()
 
-		cookie.SetSessionID(c, sessionID)
+		cookie.SetSessionID(w, sessionID)
 	}
 
 	cnt, ok := session.Get("count").(int)
@@ -70,5 +60,5 @@ func countIndex(c echo.Context) error {
 		Cnt: cnt,
 	}
 
-	return c.Render(http.StatusOK, "countIndex", dat)
+	tmpl.Render(w, "countIndex", dat)
 }

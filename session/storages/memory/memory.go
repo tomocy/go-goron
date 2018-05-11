@@ -31,11 +31,6 @@ func (m *memory) GetSession(sessionID string) (session.Session, error) {
 	return session, nil
 }
 
-func (m *memory) DestroySession(sessionID string) error {
-	if _, ok := sessions[sessionID]; ok {
-		delete(sessions, sessionID)
-		return nil
-	}
-
-	return errors.New("Session not found: could not delete the session")
+func (m *memory) SetSession(sessionID string, dat map[string]interface{}) {
+	sessions[sessionID] = session.New(sessionID, dat)
 }

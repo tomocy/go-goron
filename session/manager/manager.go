@@ -10,8 +10,7 @@ import (
 
 type Manager interface {
 	CreateSession() session.Session
-	GetSession(string) (session.Session, error)
-	SetSession(string, map[string]interface{})
+	GetSession(sessionID string) (session.Session, error)
 }
 
 type manager struct {
@@ -40,8 +39,4 @@ func (m *manager) GetSession(sessionID string) (session.Session, error) {
 	}
 
 	return session, nil
-}
-
-func (m *manager) SetSession(sessionID string, dat map[string]interface{}) {
-	m.storage.SetSession(sessionID, dat)
 }

@@ -30,7 +30,3 @@ func (m *memory) GetSession(sessionID string) (session.Session, error) {
 
 	return session, nil
 }
-
-func (m *memory) SetSession(sessionID string, dat map[string]interface{}) {
-	sessions[sessionID] = session.New(sessionID, dat)
-}

@@ -10,7 +10,7 @@ import (
 type Storage interface {
 	InitSession(sessionID string) session.Session
 	GetSession(sessionID string) (session.Session, error)
-	DestroySession(sessionID string) error
+	SetSession(sessionID string, dat map[string]interface{})
 }
 
 func Get(storage string) (Storage, error) {

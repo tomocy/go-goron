@@ -13,6 +13,7 @@ import (
 type Route interface {
 	ListenAndServe()
 
+	listen()
 	serve()
 }
 
@@ -26,13 +27,17 @@ func New() Route {
 }
 
 func (r *route) ListenAndServe() {
-	// Write root
-	http.HandleFunc("/count", count.Index)
+	// Listen
+	r.listen()
 
 	// And serve
 	r.serve()
 }
 
+func (r *route) listen() {
+	// Write root
+	http.HandleFunc("/count", count.Index)
+}
 func (r *route) serve() {
 	fmt.Println("Listeing :8080")
 	http.ListenAndServe(":8080", nil)

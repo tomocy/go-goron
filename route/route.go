@@ -35,7 +35,7 @@ func (r *route) ListenAndServe() {
 }
 
 func (r *route) listen() {
-	// Write root
+	// Routing
 	http.HandleFunc("/count", count.Index)
 }
 func (r *route) serve() {

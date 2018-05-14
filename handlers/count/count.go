@@ -1,9 +1,12 @@
 package count
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/tomocy/goron/session/manager"
+	"github.com/tomocy/goron/settings"
 	"github.com/tomocy/goron/template"
 )
 
@@ -13,14 +16,15 @@ var tmpl template.Template
 func Index(w http.ResponseWriter, r *http.Request) {
 	session := sessionManager.GetSession(w, r)
 
-	cnt, ok := session.Get("count").(int)
-	if !ok {
+	cnt, err := strconv.Atoi(session.Get("count"))
+	if err != nil {
 		cnt = 1
 	} else {
 		cnt++
 	}
 
-	session.Set("count", cnt)
+	session.Set("count", fmt.Sprintf("%d", cnt))
+	sessionManager.SetSession(session)
 
 	dat := struct {
 		Cnt interface{}
@@ -33,5 +37,5 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 func init() {
 	tmpl = template.New()
-	sessionManager, _ = manager.New("memory")
+	sessionManager, _ = manager.New(settings.Session.Storage)
 }

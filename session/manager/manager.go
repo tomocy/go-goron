@@ -12,6 +12,7 @@ import (
 
 type Manager interface {
 	GetSession(w http.ResponseWriter, r *http.Request) session.Session
+	SetSession(session session.Session)
 
 	generateSessionID() string
 }
@@ -55,6 +56,9 @@ func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 	return session
 }
 
+func (m *manager) SetSession(session session.Session) {
+	m.storage.SetSession(session)
+}
 func (m *manager) generateSessionID() string {
 	return uuid.New().String()
 }

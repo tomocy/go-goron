@@ -2,15 +2,18 @@ package manager
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/tomocy/goron/session"
+	"github.com/tomocy/goron/session/cookie"
 	"github.com/tomocy/goron/session/storages"
 )
 
 type Manager interface {
-	CreateSession() session.Session
-	GetSession(sessionID string) (session.Session, error)
+	GetSession(w http.ResponseWriter, r *http.Request) session.Session
+
+	generateSessionID() string
 }
 
 type manager struct {
@@ -26,17 +29,32 @@ func New(storageName string) (Manager, error) {
 	return &manager{storage: storage}, nil
 }
 
-func (m *manager) CreateSession() session.Session {
-	sessionID := uuid.New().String()
-
-	return m.storage.InitSession(sessionID)
-}
-
-func (m *manager) GetSession(sessionID string) (session.Session, error) {
-	session, err := m.storage.GetSession(sessionID)
+func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Session {
+	sessionID, err := cookie.GetSessionID(r)
 	if err != nil {
-		return nil, err
+		// No session id in client
+		// Start new session with new sesion id
+		sessionID = m.generateSessionID()
+		cookie.SetSessionID(w, sessionID)
+
+		return m.storage.InitSession(sessionID)
 	}
 
-	return session, nil
+	session, err := m.storage.GetSession(sessionID)
+	if err != nil {
+		// No session in server while client has session id
+		// Delete session id in client and start new session with new session id
+		cookie.DestroySessionID(w)
+
+		sessionID = m.generateSessionID()
+		cookie.SetSessionID(w, sessionID)
+
+		return m.storage.InitSession(sessionID)
+	}
+
+	return session
+}
+
+func (m *manager) generateSessionID() string {
+	return uuid.New().String()
 }

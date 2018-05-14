@@ -21,7 +21,7 @@ func (m *memory) InitSession(sessionID string) session.Session {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	dat := make(map[string]interface{})
+	dat := make(map[string]string)
 	sessions[sessionID] = session.New(sessionID, dat)
 
 	return sessions[sessionID]
@@ -37,4 +37,11 @@ func (m *memory) GetSession(sessionID string) (session.Session, error) {
 	}
 
 	return session, nil
+}
+
+func (m *memory) SetSession(session session.Session) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	sessions[session.ID()] = session
 }

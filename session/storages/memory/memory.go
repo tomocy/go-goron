@@ -45,3 +45,7 @@ func (m *memory) SetSession(session session.Session) {
 
 	sessions[session.ID()] = session
 }
+
+func (m *memory) DeleteSession(sessionID string) {
+
+}

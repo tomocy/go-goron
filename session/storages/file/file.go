@@ -66,3 +66,7 @@ func (f *file) SetSession(session session.Session) {
 		file.WriteString(fmt.Sprintf("%s:%s", k, v))
 	}
 }
+
+func (f *file) DeleteSession(sessionID string) {
+
+}

@@ -12,6 +12,7 @@ type Storage interface {
 	InitSession(sessionID string) session.Session
 	GetSession(sessionID string) (session.Session, error)
 	SetSession(session session.Session)
+	DeleteSession(sessionID string)
 }
 
 func Get(storage string) (Storage, error) {

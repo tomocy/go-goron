@@ -1,6 +1,11 @@
 package session
 
-import "sync"
+import (
+	"sync"
+	"time"
+
+	"github.com/tomocy/goron/settings"
+)
 
 type Session interface {
 	Set(k string, v string)
@@ -10,13 +15,16 @@ type Session interface {
 }
 
 type session struct {
-	id  string
-	dat map[string]string
-	mu  sync.Mutex
+	id        string
+	dat       map[string]string
+	expiresAt time.Time
+	mu        sync.Mutex
 }
 
 func New(id string, dat map[string]string) Session {
-	return &session{id: id, dat: dat}
+	expiresAt := time.Now().Add(settings.Session.ExpiresIn)
+
+	return &session{id: id, dat: dat, expiresAt: expiresAt}
 }
 
 func (s *session) Set(k string, v string) {

@@ -59,6 +59,7 @@ func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 func (m *manager) SetSession(session session.Session) {
 	m.storage.SetSession(session)
 }
+
 func (m *manager) generateSessionID() string {
 	return uuid.New().String()
 }

@@ -6,13 +6,25 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/tomocy/goron/session"
+	"github.com/tomocy/goron/settings"
 )
 
 type file struct {
 	path string
 	mu   sync.Mutex
+}
+
+var delimiter string
+var defExpiresAtKey string
+var timeLayout string
+
+func init() {
+	delimiter = ":"
+	defExpiresAtKey = "expiresAt"
+	timeLayout = time.RFC3339Nano
 }
 
 func New() *file {
@@ -23,12 +35,19 @@ func (f *file) InitSession(sessionID string) session.Session {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	if _, err := os.Create(f.path + "/" + sessionID); err != nil {
+	name := f.path + "/" + sessionID
+	file, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
 		panic(err)
 	}
 
 	dat := make(map[string]string)
-	return session.New(sessionID, dat)
+	session := session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn), dat)
+
+	// Write when it expires
+	fmt.Fprintln(file, defExpiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
+
+	return session
 }
 
 func (f *file) GetSession(sessionID string) (session.Session, error) {
@@ -41,18 +60,28 @@ func (f *file) GetSession(sessionID string) (session.Session, error) {
 	}
 	defer file.Close()
 
+	var expiresAt time.Time
 	dat := make(map[string]string)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		ss := strings.Split(scanner.Text(), ":")
+		ss := strings.SplitN(scanner.Text(), ":", 2)
 		if len(ss) < 2 {
-			dat[ss[0]] = ""
-		} else {
-			dat[ss[0]] = ss[1]
+			continue
 		}
+
+		if ss[0] == defExpiresAtKey {
+			expiresAt, err = time.Parse(time.RFC3339Nano, ss[1])
+			if err != nil {
+				panic(err)
+			}
+
+			continue
+		}
+
+		dat[ss[0]] = ss[1]
 	}
 
-	return session.New(sessionID, dat), nil
+	return session.New(sessionID, expiresAt, dat), nil
 }
 
 func (f *file) SetSession(session session.Session) {
@@ -62,11 +91,15 @@ func (f *file) SetSession(session session.Session) {
 	}
 	defer file.Close()
 
+	// Write when the session expires
+	fmt.Fprintln(file, defExpiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
+
+	// Write other keies and values
 	for k, v := range session.Data() {
-		file.WriteString(fmt.Sprintf("%s:%s", k, v))
+		fmt.Fprintln(file, fmt.Sprintf("%s:%s", k, v))
 	}
 }
 
 func (f *file) DeleteSession(sessionID string) {
-
+	os.Remove(f.path + "/" + sessionID)
 }

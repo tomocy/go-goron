@@ -3,8 +3,6 @@ package session
 import (
 	"sync"
 	"time"
-
-	"github.com/tomocy/goron/log"
 )
 
 type Session interface {
@@ -59,7 +57,6 @@ func (s *session) Data() map[string]string {
 }
 
 func (s *session) DoesExpire() bool {
-	log.Debug(s.expiresAt.String())
 	if s.expiresAt.Before(time.Now()) {
 		return true
 	}

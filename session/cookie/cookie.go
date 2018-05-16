@@ -11,7 +11,7 @@ func SetSessionID(w http.ResponseWriter, sessionID string) {
 	cookie := &http.Cookie{
 		Name:    settings.Session.Name,
 		Value:   sessionID,
-		Expires: time.Now().Add(settings.Session.ExpiresIn),
+		Expires: time.Now().Add(settings.Cookie.ExpiresIn),
 	}
 
 	http.SetCookie(w, cookie)
@@ -26,12 +26,12 @@ func GetSessionID(r *http.Request) (string, error) {
 	return cookie.Value, nil
 }
 
-func DestroySessionID(w http.ResponseWriter) {
-	cookie := &http.Cookie{
-		Name:   settings.Session.Name,
-		Value:  "",
-		MaxAge: -1,
-	}
+// func DestroySessionID(w http.ResponseWriter) {
+// 	cookie := &http.Cookie{
+// 		Name:   settings.Session.Name,
+// 		Value:  "",
+// 		MaxAge: -1,
+// 	}
 
-	http.SetCookie(w, cookie)
-}
+// 	http.SetCookie(w, cookie)
+// }

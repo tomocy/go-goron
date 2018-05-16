@@ -3,6 +3,7 @@ package memory
 import (
 	"errors"
 	"sync"
+	"time"
 
 	"github.com/tomocy/goron/session"
 )
@@ -22,7 +23,7 @@ func (m *memory) InitSession(sessionID string) session.Session {
 	defer m.mu.Unlock()
 
 	dat := make(map[string]string)
-	sessions[sessionID] = session.New(sessionID, dat)
+	sessions[sessionID] = session.New(sessionID, time.Now(), dat)
 
 	return sessions[sessionID]
 }

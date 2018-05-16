@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/tomocy/goron/log"
-	"github.com/tomocy/goron/settings"
 )
 
 type Session interface {
@@ -24,9 +23,7 @@ type session struct {
 	mu        sync.Mutex
 }
 
-func New(id string, dat map[string]string) Session {
-	expiresAt := time.Now().Add(settings.Session.ExpiresIn)
-
+func New(id string, expiresAt time.Time, dat map[string]string) Session {
 	return &session{id: id, dat: dat, expiresAt: expiresAt}
 }
 

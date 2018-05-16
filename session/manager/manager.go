@@ -44,9 +44,17 @@ func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 	session, err := m.storage.GetSession(sessionID)
 	if err != nil {
 		// No session in server while client has session id
-		// Delete session id in client and start new session with new session id
-		cookie.DestroySessionID(w)
+		// Start new session
+		sessionID = m.generateSessionID()
+		cookie.SetSessionID(w, sessionID)
 
+		return m.storage.InitSession(sessionID)
+	}
+
+	if session.DoesExpire() {
+		// When session expires
+		// Delete session in serve and start new session
+		m.storage.DeleteSession(sessionID)
 		sessionID = m.generateSessionID()
 		cookie.SetSessionID(w, sessionID)
 

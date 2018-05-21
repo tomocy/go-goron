@@ -18,12 +18,14 @@ type file struct {
 }
 
 var dstDir string
+var sessionIDs string
 var delimiter string
 var expiresAtKey string
 var timeLayout string
 
 func init() {
 	dstDir = "storage/sessions"
+	sessionIDs = dstDir + "/" + "ids"
 	delimiter = ":"
 	expiresAtKey = "expiresAt"
 	timeLayout = time.RFC3339Nano
@@ -42,12 +44,19 @@ func (f *file) InitSession(sessionID string) session.Session {
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 
 	dat := make(map[string]string)
 	session := session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn), dat)
 
 	// Write when it expires
 	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
+
+	// save id in ids file
+	err = saveID(sessionID)
+	if err != nil {
+		panic(err)
+	}
 
 	return session
 }
@@ -104,4 +113,16 @@ func (f *file) SetSession(session session.Session) {
 
 func (f *file) DeleteSession(sessionID string) {
 	os.Remove(f.path + "/" + sessionID)
+}
+
+func saveID(sessionID string) error {
+	file, err := os.OpenFile(sessionIDs, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	fmt.Fprintln(file, sessionID)
+
+	return nil
 }

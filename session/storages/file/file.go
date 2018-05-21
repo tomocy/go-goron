@@ -115,6 +115,10 @@ func (f *file) DeleteSession(sessionID string) {
 	os.Remove(f.path + "/" + sessionID)
 }
 
+func (f *file) DeleteExpiredSessions() {
+	
+}
+
 func saveID(sessionID string) error {
 	file, err := os.OpenFile(sessionIDs, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {

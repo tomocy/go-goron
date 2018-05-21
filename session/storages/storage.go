@@ -13,6 +13,7 @@ type Storage interface {
 	GetSession(sessionID string) (session.Session, error)
 	SetSession(session session.Session)
 	DeleteSession(sessionID string)
+	DeleteExpiredSessions()
 }
 
 func Get(storage string) (Storage, error) {

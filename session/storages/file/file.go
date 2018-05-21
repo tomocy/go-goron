@@ -17,18 +17,20 @@ type file struct {
 	mu   sync.Mutex
 }
 
+var dstDir string
 var delimiter string
 var expiresAtKey string
 var timeLayout string
 
 func init() {
+	dstDir = "storage/sessions"
 	delimiter = ":"
 	expiresAtKey = "expiresAt"
 	timeLayout = time.RFC3339Nano
 }
 
 func New() *file {
-	return &file{path: "storage/sessions"}
+	return &file{path: dstDir}
 }
 
 func (f *file) InitSession(sessionID string) session.Session {

@@ -37,5 +37,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 func init() {
 	tmpl = template.New()
-	sessionManager, _ = manager.New(settings.Session.Storage)
+
+	var err error
+	sessionManager, err = manager.New(settings.Session.Storage)
+	if err != nil {
+		panic(err)
+	}
 }

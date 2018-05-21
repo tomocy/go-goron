@@ -51,3 +51,7 @@ func (m *memory) SetSession(session session.Session) {
 func (m *memory) DeleteSession(sessionID string) {
 
 }
+
+func (m *memory) DeleteExpiredSessions() {
+
+}

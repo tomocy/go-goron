@@ -18,12 +18,12 @@ type file struct {
 }
 
 var delimiter string
-var defExpiresAtKey string
+var expiresAtKey string
 var timeLayout string
 
 func init() {
 	delimiter = ":"
-	defExpiresAtKey = "expiresAt"
+	expiresAtKey = "expiresAt"
 	timeLayout = time.RFC3339Nano
 }
 
@@ -45,7 +45,7 @@ func (f *file) InitSession(sessionID string) session.Session {
 	session := session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn), dat)
 
 	// Write when it expires
-	fmt.Fprintln(file, defExpiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
+	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
 
 	return session
 }
@@ -69,7 +69,7 @@ func (f *file) GetSession(sessionID string) (session.Session, error) {
 			continue
 		}
 
-		if ss[0] == defExpiresAtKey {
+		if ss[0] == expiresAtKey {
 			expiresAt, err = time.Parse(time.RFC3339Nano, ss[1])
 			if err != nil {
 				panic(err)
@@ -92,7 +92,7 @@ func (f *file) SetSession(session session.Session) {
 	defer file.Close()
 
 	// Write when the session expires
-	fmt.Fprintln(file, defExpiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
+	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
 
 	// Write other keies and values
 	for k, v := range session.Data() {

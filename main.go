@@ -1,15 +1,14 @@
 package main
 
 import (
+	"os"
+
 	"github.com/tomocy/goron/route"
 )
 
-var r route.Route
-
 func main() {
-	r.ListenAndServe()
-}
-
-func init() {
-	r = route.New()
+	rtCh := make(chan os.Signal, 1)
+	r := route.New(rtCh)
+	go r.ListenAndServe()
+	<-rtCh
 }

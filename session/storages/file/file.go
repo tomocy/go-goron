@@ -3,11 +3,13 @@ package file
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/tomocy/goron/log"
 	"github.com/tomocy/goron/session"
 	"github.com/tomocy/goron/settings"
 )
@@ -51,12 +53,6 @@ func (f *file) InitSession(sessionID string) session.Session {
 
 	// Write when it expires
 	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
-
-	// save id in ids file
-	err = saveID(sessionID)
-	if err != nil {
-		panic(err)
-	}
 
 	return session
 }
@@ -115,14 +111,38 @@ func (f *file) DeleteSession(sessionID string) {
 	os.Remove(f.path + "/" + sessionID)
 }
 
-func saveID(sessionID string) error {
-	file, err := os.OpenFile(sessionIDs, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+func (f *file) DeleteExpiredSessions() {
+	ids, err := f.getIDs()
 	if err != nil {
-		return err
+		panic(err)
 	}
-	defer file.Close()
 
-	fmt.Fprintln(file, sessionID)
+	for _, id := range ids {
+		session, err := f.GetSession(id)
+		if err != nil {
+			panic(err)
+		}
 
-	return nil
+		if session.DoesExpire() {
+			log.Debug("Session " + session.ID() + " expired, so deleted")
+			f.DeleteSession(id)
+		}
+	}
+}
+
+func (f *file) getIDs() ([]string, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	files, err := ioutil.ReadDir(f.path)
+	if err != nil {
+		return nil, err
+	}
+
+	ids := make([]string, 0, 50)
+	for _, file := range files {
+		ids = append(ids, file.Name())
+	}
+
+	return ids, nil
 }

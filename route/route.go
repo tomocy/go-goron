@@ -21,8 +21,8 @@ type route struct {
 	stopCh chan os.Signal
 }
 
-func New() Route {
-	stopCh := make(chan os.Signal, 1)
+func New(stopCh chan os.Signal) Route {
+	// stopCh := make(chan os.Signal, 1)
 	return &route{stopCh: stopCh}
 }
 
@@ -42,5 +42,5 @@ func (r *route) serve() {
 	fmt.Println("Listeing :8080")
 	http.ListenAndServe(":8080", nil)
 	signal.Notify(r.stopCh, syscall.SIGINT, syscall.SIGTERM)
-	<-r.stopCh
+	// <-r.stopCh
 }

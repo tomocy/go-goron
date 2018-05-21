@@ -25,13 +25,3 @@ func GetSessionID(r *http.Request) (string, error) {
 
 	return cookie.Value, nil
 }
-
-// func DestroySessionID(w http.ResponseWriter) {
-// 	cookie := &http.Cookie{
-// 		Name:   settings.Session.Name,
-// 		Value:  "",
-// 		MaxAge: -1,
-// 	}
-
-// 	http.SetCookie(w, cookie)
-// }

@@ -19,12 +19,6 @@ type file struct {
 	mu   sync.Mutex
 }
 
-// var dstDir string
-// var sessionIDs string
-// var delimiter string
-// var expiresAtKey string
-// var timeLayout string
-
 const (
 	dstDir       = "storage/sessions"
 	sessionIDs   = dstDir + "/" + "ids"
@@ -32,14 +26,6 @@ const (
 	expiresAtKey = "expiresAt"
 	timeLayout   = time.RFC3339Nano
 )
-
-func init() {
-	// dstDir = "storage/sessions"
-	// sessionIDs = dstDir + "/" + "ids"
-	// delimiter = ":"
-	// expiresAtKey = "expiresAt"
-	// timeLayout = time.RFC3339Nano
-}
 
 func New() *file {
 	return &file{path: dstDir}

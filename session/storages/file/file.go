@@ -108,6 +108,9 @@ func (f *file) SetSession(session session.Session) {
 }
 
 func (f *file) DeleteSession(sessionID string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
 	os.Remove(f.path + "/" + sessionID)
 }
 

@@ -27,6 +27,7 @@ const (
 )
 
 func init() {
+	// make session dir if it does not exist
 	_, err := os.Stat(DstDir)
 	if err != nil {
 		os.Mkdir(DstDir, 0744)
@@ -69,11 +70,7 @@ func (f *file) DeleteExpiredSessions() {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	ids, err := f.getIDs()
-	if err != nil {
-		panic(err)
-	}
-
+	ids := f.getIDs()
 	for _, id := range ids {
 		session, err := f.getSession(id)
 		if err != nil {
@@ -155,10 +152,10 @@ func (f *file) deleteSession(sessionID string) {
 	os.Remove(f.path + "/" + sessionID)
 }
 
-func (f *file) getIDs() ([]string, error) {
+func (f *file) getIDs() []string {
 	files, err := ioutil.ReadDir(f.path)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	ids := make([]string, 0, 50)
@@ -166,5 +163,5 @@ func (f *file) getIDs() ([]string, error) {
 		ids = append(ids, file.Name())
 	}
 
-	return ids, nil
+	return ids
 }

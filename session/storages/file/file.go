@@ -41,20 +41,7 @@ func (f *file) InitSession(sessionID string) session.Session {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	name := f.path + "/" + sessionID
-	file, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	dat := make(map[string]string)
-	session := session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn), dat)
-
-	// Write when it expires
-	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
-
-	return session
+	return f.initSession(sessionID)
 }
 
 func (f *file) GetSession(sessionID string) (session.Session, error) {
@@ -95,6 +82,23 @@ func (f *file) DeleteExpiredSessions() {
 			f.DeleteSession(id)
 		}
 	}
+}
+
+func (f *file) initSession(sessionID string) session.Session {
+	name := f.path + "/" + sessionID
+	file, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	dat := make(map[string]string)
+	session := session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn), dat)
+
+	// Write when it expires
+	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
+
+	return session
 }
 
 func (f *file) getSession(sessionID string) (session.Session, error) {

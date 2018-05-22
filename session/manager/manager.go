@@ -25,7 +25,7 @@ type manager struct {
 	probOfDeleteDivisor int
 }
 
-func New(storageName string) (Manager, error) {
+func New(storageName string) (*manager, error) {
 	storage, err := storages.Get(storageName)
 	if err != nil {
 		return nil, fmt.Errorf("Storage not found: %s", storageName)

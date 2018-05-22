@@ -26,6 +26,13 @@ const (
 	TimeLayout   = time.RFC3339Nano
 )
 
+func init() {
+	_, err := os.Stat(DstDir)
+	if err != nil {
+		os.Mkdir(DstDir, 0744)
+	}
+}
+
 func New() *file {
 	return &file{path: DstDir}
 }

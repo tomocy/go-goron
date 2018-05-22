@@ -61,34 +61,7 @@ func (f *file) GetSession(sessionID string) (session.Session, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	file, err := os.Open(f.path + "/" + sessionID)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	var expiresAt time.Time
-	dat := make(map[string]string)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		ss := strings.SplitN(scanner.Text(), ":", 2)
-		if len(ss) < 2 {
-			continue
-		}
-
-		if ss[0] == expiresAtKey {
-			expiresAt, err = time.Parse(time.RFC3339Nano, ss[1])
-			if err != nil {
-				panic(err)
-			}
-
-			continue
-		}
-
-		dat[ss[0]] = ss[1]
-	}
-
-	return session.New(sessionID, expiresAt, dat), nil
+	return f.getSession(sessionID)
 }
 
 func (f *file) SetSession(session session.Session) {
@@ -131,6 +104,37 @@ func (f *file) DeleteExpiredSessions() {
 			f.DeleteSession(id)
 		}
 	}
+}
+
+func (f *file) getSession(sessionID string) (session.Session, error) {
+	file, err := os.Open(f.path + "/" + sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var expiresAt time.Time
+	dat := make(map[string]string)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		ss := strings.SplitN(scanner.Text(), ":", 2)
+		if len(ss) < 2 {
+			continue
+		}
+
+		if ss[0] == expiresAtKey {
+			expiresAt, err = time.Parse(time.RFC3339Nano, ss[1])
+			if err != nil {
+				panic(err)
+			}
+
+			continue
+		}
+
+		dat[ss[0]] = ss[1]
+	}
+
+	return session.New(sessionID, expiresAt, dat), nil
 }
 
 func (f *file) getIDs() ([]string, error) {

@@ -66,20 +66,23 @@ func (f *file) DeleteSession(sessionID string) {
 }
 
 func (f *file) DeleteExpiredSessions() {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
 	ids, err := f.getIDs()
 	if err != nil {
 		panic(err)
 	}
 
 	for _, id := range ids {
-		session, err := f.GetSession(id)
+		session, err := f.getSession(id)
 		if err != nil {
 			panic(err)
 		}
 
 		if session.DoesExpire() {
 			log.Debug("Session " + session.ID() + " expired, so deleted")
-			f.DeleteSession(id)
+			f.deleteSession(id)
 		}
 	}
 }

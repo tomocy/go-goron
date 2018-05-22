@@ -43,5 +43,4 @@ func (r *route) serve() {
 	fmt.Println("Listeing :8080")
 	http.ListenAndServe(":8080", nil)
 	signal.Notify(r.stopCh, syscall.SIGINT, syscall.SIGTERM)
-	// <-r.stopCh
 }

@@ -18,8 +18,6 @@ type Manager interface {
 	GetSession(w http.ResponseWriter, r *http.Request) session.Session
 	SetSession(session session.Session)
 	DeleteExpiredSessions()
-
-	generateSessionID() string
 }
 
 type manager struct {

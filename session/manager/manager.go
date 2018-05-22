@@ -2,13 +2,17 @@ package manager
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/tomocy/goron/log"
 	"github.com/tomocy/goron/session"
 	"github.com/tomocy/goron/session/cookie"
 	"github.com/tomocy/goron/session/storages"
+	"github.com/tomocy/goron/settings"
 )
 
 type Manager interface {
@@ -20,7 +24,9 @@ type Manager interface {
 }
 
 type manager struct {
-	storage storages.Storage
+	storage             storages.Storage
+	probOfDelete        int
+	probOfDeleteDivisor int
 }
 
 func New(storageName string) (Manager, error) {
@@ -29,7 +35,13 @@ func New(storageName string) (Manager, error) {
 		return nil, fmt.Errorf("Storage not found: %s", storageName)
 	}
 
-	return &manager{storage: storage}, nil
+	m := &manager{
+		storage:             storage,
+		probOfDelete:        settings.SessionManager.ProbOfDelete,
+		probOfDeleteDivisor: settings.SessionManager.ProbOfDeleteDivisor,
+	}
+
+	return m, nil
 }
 
 func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Session {
@@ -71,17 +83,39 @@ func (m *manager) SetSession(session session.Session) {
 }
 
 func (m *manager) DeleteExpiredSessions() {
-	t := time.NewTicker(1 * time.Minute)
+	t := time.NewTicker(5 * time.Second)
 	defer t.Stop()
 
 	for {
 		select {
 		case <-t.C:
-			m.storage.DeleteExpiredSessions()
+			if m.doesDelete() {
+				log.Debug("true")
+				m.storage.DeleteExpiredSessions()
+			} else {
+				log.Debug("false")
+			}
 		}
 	}
 }
 
 func (m *manager) generateSessionID() string {
 	return uuid.New().String()
+}
+
+func (m *manager) doesDelete() bool {
+	if m.probOfDelete <= 0 {
+		return false
+	}
+	if m.probOfDeleteDivisor <= m.probOfDelete {
+		return true
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	n := rand.Intn(m.probOfDeleteDivisor) + 1
+
+	log.Debug(strconv.Itoa(n))
+
+	return n <= m.probOfDelete
 }

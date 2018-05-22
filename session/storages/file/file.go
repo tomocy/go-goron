@@ -19,18 +19,26 @@ type file struct {
 	mu   sync.Mutex
 }
 
-var dstDir string
-var sessionIDs string
-var delimiter string
-var expiresAtKey string
-var timeLayout string
+// var dstDir string
+// var sessionIDs string
+// var delimiter string
+// var expiresAtKey string
+// var timeLayout string
+
+const (
+	dstDir       = "storage/sessions"
+	sessionIDs   = dstDir + "/" + "ids"
+	delimiter    = ":"
+	expiresAtKey = "expiresAt"
+	timeLayout   = time.RFC3339Nano
+)
 
 func init() {
-	dstDir = "storage/sessions"
-	sessionIDs = dstDir + "/" + "ids"
-	delimiter = ":"
-	expiresAtKey = "expiresAt"
-	timeLayout = time.RFC3339Nano
+	// dstDir = "storage/sessions"
+	// sessionIDs = dstDir + "/" + "ids"
+	// delimiter = ":"
+	// expiresAtKey = "expiresAt"
+	// timeLayout = time.RFC3339Nano
 }
 
 func New() *file {
@@ -115,13 +123,13 @@ func (f *file) getSession(sessionID string) (session.Session, error) {
 	dat := make(map[string]string)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		ss := strings.SplitN(scanner.Text(), ":", 2)
+		ss := strings.SplitN(scanner.Text(), delimiter, 2)
 		if len(ss) < 2 {
 			continue
 		}
 
 		if ss[0] == expiresAtKey {
-			expiresAt, err = time.Parse(time.RFC3339Nano, ss[1])
+			expiresAt, err = time.Parse(timeLayout, ss[1])
 			if err != nil {
 				panic(err)
 			}

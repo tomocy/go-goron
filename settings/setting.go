@@ -9,6 +9,11 @@ func init() {
 		Storage:   "file",
 	}
 
+	SessionManager = &sessionManager{
+		ProbOfDelete:        1,
+		ProbOfDeleteDivisor: 100,
+	}
+
 	Cookie = &cookie{
 		ExpiresIn: 1 * time.Hour,
 	}

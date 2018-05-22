@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/tomocy/goron/log"
 	"github.com/tomocy/goron/session"
 	"github.com/tomocy/goron/session/cookie"
 	"github.com/tomocy/goron/session/storages"
@@ -80,17 +79,14 @@ func (m *manager) SetSession(session session.Session) {
 }
 
 func (m *manager) DeleteExpiredSessions() {
-	t := time.NewTicker(5 * time.Second)
+	t := time.NewTicker(1 * time.Minute)
 	defer t.Stop()
 
 	for {
 		select {
 		case <-t.C:
 			if m.doesDelete() {
-				log.Debug("true")
 				m.storage.DeleteExpiredSessions()
-			} else {
-				log.Debug("false")
 			}
 		}
 	}

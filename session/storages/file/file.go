@@ -65,19 +65,10 @@ func (f *file) GetSession(sessionID string) (session.Session, error) {
 }
 
 func (f *file) SetSession(session session.Session) {
-	file, err := os.OpenFile(f.path+"/"+session.ID(), os.O_WRONLY, 0755)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
+	f.mu.Lock()
+	defer f.mu.Unlock()
 
-	// Write when the session expires
-	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
-
-	// Write other keies and values
-	for k, v := range session.Data() {
-		fmt.Fprintln(file, fmt.Sprintf("%s:%s", k, v))
-	}
+	f.setSession(session)
 }
 
 func (f *file) DeleteSession(sessionID string) {
@@ -135,6 +126,22 @@ func (f *file) getSession(sessionID string) (session.Session, error) {
 	}
 
 	return session.New(sessionID, expiresAt, dat), nil
+}
+
+func (f *file) setSession(session session.Session) {
+	file, err := os.OpenFile(f.path+"/"+session.ID(), os.O_WRONLY, 0755)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// Write when the session expires
+	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
+
+	// Write other keies and values
+	for k, v := range session.Data() {
+		fmt.Fprintln(file, fmt.Sprintf("%s:%s", k, v))
+	}
 }
 
 func (f *file) getIDs() ([]string, error) {

@@ -38,6 +38,7 @@ func (r *route) listen() {
 	// Routing
 	http.HandleFunc("/count", count.Index)
 }
+
 func (r *route) serve() {
 	fmt.Println("Listeing :8080")
 	http.ListenAndServe(":8080", nil)

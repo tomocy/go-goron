@@ -62,7 +62,7 @@ func (f *file) DeleteSession(sessionID string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	os.Remove(f.path + "/" + sessionID)
+	f.deleteSession(sessionID)
 }
 
 func (f *file) DeleteExpiredSessions() {
@@ -146,6 +146,10 @@ func (f *file) setSession(session session.Session) {
 	for k, v := range session.Data() {
 		fmt.Fprintln(file, fmt.Sprintf("%s:%s", k, v))
 	}
+}
+
+func (f *file) deleteSession(sessionID string) {
+	os.Remove(f.path + "/" + sessionID)
 }
 
 func (f *file) getIDs() ([]string, error) {

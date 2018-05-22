@@ -21,7 +21,6 @@ type file struct {
 
 const (
 	DstDir       = "storage/sessions"
-	SessionIDs   = DstDir + "/" + "ids"
 	Delimiter    = ":"
 	ExpiresAtKey = "expiresAt"
 	TimeLayout   = time.RFC3339Nano

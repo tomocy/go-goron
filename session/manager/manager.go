@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -113,9 +112,5 @@ func (m *manager) doesDelete() bool {
 
 	rand.Seed(time.Now().UnixNano())
 
-	n := rand.Intn(m.probOfDeleteDivisor) + 1
-
-	log.Debug(strconv.Itoa(n))
-
-	return n <= m.probOfDelete
+	return rand.Intn(m.probOfDeleteDivisor)+1 <= m.probOfDelete
 }

@@ -149,9 +149,6 @@ func (f *file) setSession(session session.Session) {
 }
 
 func (f *file) getIDs() ([]string, error) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
 	files, err := ioutil.ReadDir(f.path)
 	if err != nil {
 		return nil, err

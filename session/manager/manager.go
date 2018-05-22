@@ -46,7 +46,7 @@ func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 	if err != nil {
 		// No session id in client
 		// Start new session with new sesion id
-		sessionID = m.generateSessionID()
+		sessionID = generateSessionID()
 		cookie.SetSessionID(w, sessionID)
 
 		return m.storage.InitSession(sessionID)
@@ -56,7 +56,7 @@ func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 	if err != nil {
 		// No session in server while client has session id
 		// Start new session
-		sessionID = m.generateSessionID()
+		sessionID = generateSessionID()
 		cookie.SetSessionID(w, sessionID)
 
 		return m.storage.InitSession(sessionID)
@@ -66,7 +66,7 @@ func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 		// When session expires
 		// Delete session in serve and start new session
 		m.storage.DeleteSession(sessionID)
-		sessionID = m.generateSessionID()
+		sessionID = generateSessionID()
 		cookie.SetSessionID(w, sessionID)
 
 		return m.storage.InitSession(sessionID)
@@ -96,10 +96,6 @@ func (m *manager) DeleteExpiredSessions() {
 	}
 }
 
-func (m *manager) generateSessionID() string {
-	return uuid.New().String()
-}
-
 func (m *manager) doesDelete() bool {
 	if m.probOfDelete <= 0 {
 		return false
@@ -111,4 +107,8 @@ func (m *manager) doesDelete() bool {
 	rand.Seed(time.Now().UnixNano())
 
 	return rand.Intn(m.probOfDeleteDivisor)+1 <= m.probOfDelete
+}
+
+func generateSessionID() string {
+	return uuid.New().String()
 }

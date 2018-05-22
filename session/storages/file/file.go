@@ -20,15 +20,15 @@ type file struct {
 }
 
 const (
-	dstDir       = "storage/sessions"
-	sessionIDs   = dstDir + "/" + "ids"
-	delimiter    = ":"
-	expiresAtKey = "expiresAt"
-	timeLayout   = time.RFC3339Nano
+	DstDir       = "storage/sessions"
+	SessionIDs   = DstDir + "/" + "ids"
+	Delimiter    = ":"
+	ExpiresAtKey = "expiresAt"
+	TimeLayout   = time.RFC3339Nano
 )
 
 func New() *file {
-	return &file{path: dstDir}
+	return &file{path: DstDir}
 }
 
 func (f *file) InitSession(sessionID string) session.Session {
@@ -93,7 +93,7 @@ func (f *file) initSession(sessionID string) session.Session {
 	session := session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn), dat)
 
 	// Write when it expires
-	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
+	fmt.Fprintln(file, ExpiresAtKey+Delimiter+session.ExpiresAt().Format(TimeLayout))
 
 	return session
 }
@@ -109,13 +109,13 @@ func (f *file) getSession(sessionID string) (session.Session, error) {
 	dat := make(map[string]string)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		ss := strings.SplitN(scanner.Text(), delimiter, 2)
+		ss := strings.SplitN(scanner.Text(), Delimiter, 2)
 		if len(ss) < 2 {
 			continue
 		}
 
-		if ss[0] == expiresAtKey {
-			expiresAt, err = time.Parse(timeLayout, ss[1])
+		if ss[0] == ExpiresAtKey {
+			expiresAt, err = time.Parse(TimeLayout, ss[1])
 			if err != nil {
 				panic(err)
 			}
@@ -137,7 +137,7 @@ func (f *file) setSession(session session.Session) {
 	defer file.Close()
 
 	// Write when the session expires
-	fmt.Fprintln(file, expiresAtKey+delimiter+session.ExpiresAt().Format(timeLayout))
+	fmt.Fprintln(file, ExpiresAtKey+Delimiter+session.ExpiresAt().Format(TimeLayout))
 
 	// Write other keies and values
 	for k, v := range session.Data() {

@@ -45,29 +45,20 @@ func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 	if err != nil {
 		// No session id in client
 		// Start new session with new sesion id
-		sessionID = generateSessionID()
-		cookie.SetSessionID(w, sessionID)
-
-		return m.storage.InitSession(sessionID)
+		return m.recreateSession(w)
 	}
 
 	session, err := m.storage.GetSession(sessionID)
 	if err != nil {
 		// No session in server while client has session id
 		// Start new session
-		sessionID = generateSessionID()
-		cookie.SetSessionID(w, sessionID)
-
-		return m.storage.InitSession(sessionID)
+		return m.recreateSession(w)
 	}
 
 	if session.DoesExpire() {
 		// When session expires
 		// Delete session in serve and start new session
-		sessionID = generateSessionID()
-		cookie.SetSessionID(w, sessionID)
-
-		return m.storage.InitSession(sessionID)
+		return m.recreateSession(w)
 	}
 
 	return session
@@ -89,6 +80,13 @@ func (m *manager) DeleteExpiredSessions() {
 			}
 		}
 	}
+}
+
+func (m *manager) recreateSession(w http.ResponseWriter) session.Session {
+	sessionID := generateSessionID()
+	cookie.SetSessionID(w, sessionID)
+
+	return m.storage.InitSession(sessionID)
 }
 
 func (m *manager) doesDelete() bool {

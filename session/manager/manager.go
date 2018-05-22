@@ -64,7 +64,6 @@ func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 	if session.DoesExpire() {
 		// When session expires
 		// Delete session in serve and start new session
-		m.storage.DeleteSession(sessionID)
 		sessionID = generateSessionID()
 		cookie.SetSessionID(w, sessionID)
 

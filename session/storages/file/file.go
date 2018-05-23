@@ -30,7 +30,7 @@ func init() {
 	// make session dir if it does not exist
 	_, err := os.Stat(DstDir)
 	if err != nil {
-		os.Mkdir(DstDir, 0744)
+		os.MkdirAll(DstDir, 0744)
 	}
 }
 

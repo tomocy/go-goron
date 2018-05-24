@@ -56,6 +56,17 @@ func TestSetSession(t *testing.T) {
 	t.Run("Session expires", onSessionExpired)
 }
 
+func TestDeleteExpiredSessions(t *testing.T) {
+	m, err := manager.New(settings.Session.Storage)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	go m.DeleteExpiredSessions()
+
+	time.Sleep(1 * time.Second)
+}
+
 func onNoCookie(t *testing.T) {
 	mt, err := setUpManagerTest()
 	if err != nil {

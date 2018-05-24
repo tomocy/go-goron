@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -91,17 +90,12 @@ func onSessionExpired(t *testing.T) {
 }
 
 func setUpManagerTest() (*managerTest, error) {
-	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, http.StatusOK)
-	}))
-	defer s.Close()
-
 	m, err := manager.New(settings.Session.Storage)
 	if err != nil {
 		return nil, err
 	}
 	rec := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", s.URL+"/count", nil)
+	req := httptest.NewRequest("GET", "http://192.168.55.55:8080/count", nil)
 	if err != nil {
 		return nil, err
 	}

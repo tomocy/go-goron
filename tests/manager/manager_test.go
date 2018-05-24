@@ -4,11 +4,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 
 	"github.com/tomocy/goron/session"
 	"github.com/tomocy/goron/session/manager"
+	"github.com/tomocy/goron/session/storages/file"
 	"github.com/tomocy/goron/settings"
 )
 
@@ -48,9 +50,40 @@ func TestGetSession(t *testing.T) {
 }
 
 func TestSetSession(t *testing.T) {
-	t.Run("No cookie", onNoCookie)
-	t.Run("No session", onNoSession)
-	t.Run("Session expires", onSessionExpired)
+	strg := file.New()
+	sess1ID := "test"
+	sess1 := strg.InitSession(sess1ID)
+	dat1 := map[string]string{
+		"aiueo": "test",
+		"あいうえお": "アイウエオ",
+	}
+
+	for k, v := range dat1 {
+		sess1.Set(k, v)
+	}
+
+	m, err := manager.New(settings.Session.Storage)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m.SetSession(sess1)
+
+	sess2, err := strg.GetSession(sess1ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sess2ID := sess2.ID()
+	dat2 := sess2.Data()
+
+	if sess1ID != sess2ID {
+		t.Errorf("session id\n\twanted %s\n\thad %s", sess1ID, sess2ID)
+	}
+	if !reflect.DeepEqual(dat1, dat2) {
+		t.Errorf("sessino data\n\twanted %#v\n\thad %#v", dat1, dat2)
+	}
+	if !sess1.ExpiresAt().Equal(sess2.ExpiresAt()) {
+		t.Errorf("expires times of session1 and session2 are not same")
+	}
 }
 
 func TestDeleteExpiredSessions(t *testing.T) {

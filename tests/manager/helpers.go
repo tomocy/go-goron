@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"reflect"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/tomocy/goron/session"
 	"github.com/tomocy/goron/session/manager"
+	"github.com/tomocy/goron/session/storages/file"
 	"github.com/tomocy/goron/settings"
 )
 
@@ -21,14 +21,10 @@ func onNoCookie(t *testing.T) {
 	}
 
 	sess1 := mt.m.GetSession(mt.rec, mt.req)
-
-	sess1.Set("count", "0")
-	mt.m.SetSession(sess1)
-
 	sess2 := mt.m.GetSession(mt.rec, mt.req)
 
-	if !reflect.DeepEqual(sess1.Data(), sess2.Data()) {
-		t.Errorf("\t\nwanted %#v,\t\nhad %#v", sess1.Data(), sess2.Data())
+	if sess1.ID() == sess2.ID() {
+		t.Error("Session ids are same mainly because manager cannot recreate session when no session id in cookie")
 	}
 }
 
@@ -38,34 +34,24 @@ func onNoSession(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	sess := mt.m.GetSession(mt.rec, mt.req)
+	strg := file.New()
+	sess1 := strg.InitSession("test")
 
-	mt.req.AddCookie(&http.Cookie{
-		Name:    settings.Session.Name,
-		Value:   sess.ID(),
-		Expires: sess.ExpiresAt(),
-	})
-
-	err = deleteSession(sess.ID())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	sess1 := mt.m.GetSession(mt.rec, mt.req)
-	mt.req.Header.Del("Cookie")
 	mt.req.AddCookie(&http.Cookie{
 		Name:    settings.Session.Name,
 		Value:   sess1.ID(),
 		Expires: sess1.ExpiresAt(),
 	})
 
-	sess1.Set("count", "0")
-	mt.m.SetSession(sess1)
+	err = deleteSession(sess1.ID())
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	sess2 := mt.m.GetSession(mt.rec, mt.req)
 
-	if !reflect.DeepEqual(sess1.Data(), sess2.Data()) {
-		t.Errorf("\t\nwanted %#v,\t\nhad %#v", sess1.Data(), sess2.Data())
+	if sess1.ID() == sess2.ID() {
+		t.Errorf("Session ids are same mainly because manager could not recreate session though no the session in server")
 	}
 }
 
@@ -75,17 +61,15 @@ func onSessionExpired(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	sess1 := mt.m.GetSession(mt.rec, mt.req)
-
-	sess1.Set("count", "0")
-	mt.m.SetSession(sess1)
+	strg := file.New()
+	sess1 := strg.InitSession("test")
 
 	makeSessionExpires(mt.m, sess1)
 
 	sess2 := mt.m.GetSession(mt.rec, mt.req)
 
 	if sess1.ID() == sess2.ID() {
-		t.Error("sess1's id and sess2's id are same, this may be because manager could not check if session expires conrectly")
+		t.Error("Session ids are same mainly because manager could not recreate session though the former session expires")
 	}
 }
 
@@ -99,14 +83,6 @@ func setUpManagerTest() (*managerTest, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	sess := m.GetSession(rec, req)
-
-	req.AddCookie(&http.Cookie{
-		Name:    settings.Session.Name,
-		Value:   sess.ID(),
-		Expires: sess.ExpiresAt(),
-	})
 
 	return &managerTest{
 		m:   m,

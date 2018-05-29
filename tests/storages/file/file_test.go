@@ -59,3 +59,36 @@ func TestGetSession(t *testing.T) {
 	}
 
 }
+
+func TestSetSession(t *testing.T) {
+	f := file.New()
+	sess1ID := generateSessionID()
+	sess1 := f.InitSession(sess1ID)
+
+	dat := map[string]string{
+		"aiueo":       "あいうえお",
+		"kakikukeko":  "かきくけこ",
+		"sashisuseso": "さしすせそ",
+		"tatituteto":  "たちつてと",
+		"hahihuheho":  "はひふへほ",
+		"mamimumemo":  "まみむめも",
+		"yayuyo":      "やゆよ",
+		"rarirurero":  "らりるれろ",
+		"waronn":      "わをん",
+	}
+	for k, v := range dat {
+		sess1.Set(k, v)
+	}
+
+	// function to be tested
+	f.SetSession(sess1)
+
+	sess2, err := f.GetSession(sess1ID)
+	if err != nil {
+		t.Fatal("could not get session")
+	}
+
+	if sess1.ID() != sess2.ID() || !reflect.DeepEqual(dat, sess2.Data()) {
+		t.Error(tlog.GetWantedHad("data in session not same", dat, sess2.Data()))
+	}
+}

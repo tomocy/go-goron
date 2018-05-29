@@ -1,6 +1,7 @@
 package file
 
 import (
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -90,5 +91,19 @@ func TestSetSession(t *testing.T) {
 
 	if sess1.ID() != sess2.ID() || !reflect.DeepEqual(dat, sess2.Data()) {
 		t.Error(tlog.GetWantedHad("data in session not same", dat, sess2.Data()))
+	}
+}
+
+func TestDeleteSession(t *testing.T) {
+	f := file.New()
+	sessID := generateSessionID()
+	sess := f.InitSession(sessID)
+
+	// function to be tested
+	f.DeleteSession(sess.ID())
+
+	fPath := getSessionFilePath(sess.ID())
+	if _, err := os.Stat(fPath); err == nil {
+		t.Fatal("could not delete session file")
 	}
 }

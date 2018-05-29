@@ -17,6 +17,16 @@ const (
 	TimeLayout   = time.RFC3339Nano
 )
 
+func TestMain(m *testing.M) {
+	ec := m.Run()
+	tearDown()
+	os.Exit(ec)
+}
+
+func tearDown() {
+	os.RemoveAll("storage")
+}
+
 func TestInitSession(t *testing.T) {
 	f := file.New()
 	sessID := generateSessionID()

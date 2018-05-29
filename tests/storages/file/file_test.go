@@ -7,6 +7,7 @@ import (
 
 	"github.com/tomocy/goron/log/tlog"
 	"github.com/tomocy/goron/session/storages/file"
+	"github.com/tomocy/goron/settings"
 )
 
 const (
@@ -17,26 +18,21 @@ const (
 
 func TestInitSession(t *testing.T) {
 	f := file.New()
-	sess1ID := generateSessionID()
+	sessID := generateSessionID()
 
 	// functino to be tested
-	sess1 := f.InitSession(sess1ID)
-	if sess1ID != sess1.ID() {
-		t.Error(tlog.GetWantedHad("could not init session with passed id", sess1ID, sess1.ID()))
+	sess := f.InitSession(sessID)
+
+	if sessID != sess.ID() {
+		t.Error(tlog.GetWantedHad("could not init session with passed id", sessID, sess.ID()))
 	}
 
-	sess2, err := f.GetSession(sess1ID)
-	if err != nil {
-		t.Fatal("could not get session", err)
+	emptData := make(map[string]string)
+	if !reflect.DeepEqual(emptData, sess.Data()) {
+		t.Error(tlog.GetWantedHad("could not init session with empty data", emptData, sess.Data()))
 	}
 
-	if sess1.ID() != sess2.ID() {
-		t.Error(tlog.GetWantedHad("session id not same", sess1.ID(), sess2.ID()))
-	}
-	if !reflect.DeepEqual(sess1.Data(), sess2.Data()) {
-		t.Error(tlog.GetWantedHad("data in session not same", sess1.Data(), sess2.Data()))
-	}
-	if !sess1.ExpiresAt().Equal(sess2.ExpiresAt()) {
-		t.Error("expires of session not same")
+	if sess.ExpiresAt().Add(-1 * settings.Session.ExpiresIn).After(time.Now()) {
+		t.Error("could not set session expires as settings")
 	}
 }

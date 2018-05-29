@@ -63,3 +63,32 @@ func TestGet(t *testing.T) {
 		}
 	}
 }
+
+func TestSet(t *testing.T) {
+	sessID := generateSessionID()
+	expiresAt := time.Now()
+	dat := make(map[string]string)
+	sess := session.New(sessID, expiresAt, dat)
+
+	dat = map[string]string{
+		"aiueo":       "あいうえお",
+		"kakikukeko":  "かきくけこ",
+		"sashisuseso": "さしすせそ",
+		"tatituteto":  "たちつてと",
+		"hahihuheho":  "はひふへほ",
+		"mamimumemo":  "まみむめも",
+		"yayuyo":      "やゆよ",
+		"rarirurero":  "らりるれろ",
+		"waronn":      "わをん",
+	}
+
+	for k, v := range dat {
+		// function to be tested
+		sess.Set(k, v)
+	}
+
+	if !reflect.DeepEqual(dat, sess.Data()) {
+		t.Error(tlog.GetWantedHad("data in session not expected", dat, sess.Data()))
+	}
+
+}

@@ -93,16 +93,31 @@ func TestSet(t *testing.T) {
 }
 
 func TestDoesExpire(t *testing.T) {
+	t.Run("On expired session", testOnExpiredSession)
+	t.Run("On living session", testOnLivingSession)
+}
+
+func testOnExpiredSession(t *testing.T) {
+	sessID := generateSessionID()
+	// expired even now
+	expiresAt := time.Now().Add(-1 * time.Hour)
 	dat := make(map[string]string)
-	expiredSess := session.New(generateSessionID(), time.Now().Add(-1*time.Hour), dat)
-	livingSess := session.New(generateSessionID(), time.Now().Add(1*time.Hour), dat)
+	sess := session.New(sessID, expiresAt, dat)
+
+	if !sess.DoesExpire() {
+		t.Errorf("session should be expired\n", sess.ExpiresAt())
+	}
+}
+
+func testOnLivingSession(t *testing.T) {
+	sessID := generateSessionID()
+	// not expired now
+	expiresAt := time.Now().Add(1 * time.Hour)
+	dat := make(map[string]string)
+	sess := session.New(sessID, expiresAt, dat)
 
 	// function to be tested
-	if !expiredSess.DoesExpire() {
-		t.Error("expiredSess should be expired")
+	if sess.DoesExpire() {
+		t.Errorf("session should not be expired\n", sess.ExpiresAt())
 	}
-	if livingSess.DoesExpire() {
-		t.Error("livingSess should not be expired")
-	}
-
 }

@@ -38,3 +38,28 @@ func TestNew(t *testing.T) {
 		t.Error(tlog.GetWantedHad("expiresAt of session not same", expiresAt, sess.ExpiresAt()))
 	}
 }
+
+func TestGet(t *testing.T) {
+	sessID := generateSessionID()
+	expiresAt := time.Now()
+	dat := map[string]string{
+		"aiueo":       "あいうえお",
+		"kakikukeko":  "かきくけこ",
+		"sashisuseso": "さしすせそ",
+		"tatituteto":  "たちつてと",
+		"hahihuheho":  "はひふへほ",
+		"mamimumemo":  "まみむめも",
+		"yayuyo":      "やゆよ",
+		"rarirurero":  "らりるれろ",
+		"waronn":      "わをん",
+	}
+	sess := session.New(sessID, expiresAt, dat)
+
+	for k, v1 := range dat {
+		// function to be tested
+		v2 := sess.Get(k)
+		if v1 != v2 {
+			t.Error(tlog.GetWantedHad("value of "+k+" not expected", v1, v2))
+		}
+	}
+}

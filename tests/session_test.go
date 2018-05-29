@@ -90,5 +90,19 @@ func TestSet(t *testing.T) {
 	if !reflect.DeepEqual(dat, sess.Data()) {
 		t.Error(tlog.GetWantedHad("data in session not expected", dat, sess.Data()))
 	}
+}
+
+func TestDoesExpire(t *testing.T) {
+	dat := make(map[string]string)
+	expiredSess := session.New(generateSessionID(), time.Now().Add(-1*time.Hour), dat)
+	livingSess := session.New(generateSessionID(), time.Now().Add(1*time.Hour), dat)
+
+	// function to be tested
+	if !expiredSess.DoesExpire() {
+		t.Error("expiredSess should be expired")
+	}
+	if livingSess.DoesExpire() {
+		t.Error("livingSess should not be expired")
+	}
 
 }

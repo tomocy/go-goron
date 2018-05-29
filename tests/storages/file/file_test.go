@@ -36,3 +36,26 @@ func TestInitSession(t *testing.T) {
 		t.Error("could not set session expires as settings")
 	}
 }
+
+func TestGetSession(t *testing.T) {
+	f := file.New()
+	sess1ID := generateSessionID()
+	sess1 := f.InitSession(sess1ID)
+
+	// function to be tested
+	sess2, err := f.GetSession(sess1ID)
+	if err != nil {
+		t.Fatal("could not get session\n", err)
+	}
+
+	if sess1.ID() != sess2.ID() {
+		t.Error(tlog.GetWantedHad("session id not same", sess1.ID(), sess2.ID()))
+	}
+	if !reflect.DeepEqual(sess1.Data(), sess2.Data()) {
+		t.Error(tlog.GetWantedHad("data in session not same", sess1.Data(), sess2.Data()))
+	}
+	if !sess1.ExpiresAt().Equal(sess2.ExpiresAt()) {
+		t.Error("expires of session not same")
+	}
+
+}

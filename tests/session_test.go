@@ -5,13 +5,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/tomocy/goron/helper"
 	"github.com/tomocy/goron/log/tlog"
 
 	"github.com/tomocy/goron/session"
 )
 
 func TestNew(t *testing.T) {
-	sessID := generateSessionID()
+	sessID := helper.GenerateSessionID()
 	expiresAt := time.Now()
 	dat := map[string]string{
 		"aiueo":       "あいうえお",
@@ -40,7 +41,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	sessID := generateSessionID()
+	sessID := helper.GenerateSessionID()
 	expiresAt := time.Now()
 	dat := map[string]string{
 		"aiueo":       "あいうえお",
@@ -65,7 +66,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	sessID := generateSessionID()
+	sessID := helper.GenerateSessionID()
 	expiresAt := time.Now()
 	dat := make(map[string]string)
 	sess := session.New(sessID, expiresAt, dat)
@@ -105,7 +106,7 @@ func TestDoesExpire(t *testing.T) {
 }
 
 func testOnExpiredSession(t *testing.T) {
-	sessID := generateSessionID()
+	sessID := helper.GenerateSessionID()
 	// expired even now
 	expiresAt := time.Now().Add(-1 * time.Hour)
 	dat := make(map[string]string)
@@ -117,7 +118,7 @@ func testOnExpiredSession(t *testing.T) {
 }
 
 func testOnLivingSession(t *testing.T) {
-	sessID := generateSessionID()
+	sessID := helper.GenerateSessionID()
 	// not expired now
 	expiresAt := time.Now().Add(1 * time.Hour)
 	dat := make(map[string]string)

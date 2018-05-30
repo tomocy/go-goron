@@ -87,7 +87,14 @@ func TestSet(t *testing.T) {
 		sess.Set(k, v)
 	}
 
+	// should be same
 	if !reflect.DeepEqual(dat, sess.Data()) {
+		t.Error(tlog.GetWantedHad("data in session not expected", dat, sess.Data()))
+	}
+
+	dat["test"] = "てすと"
+	// should not be same
+	if reflect.DeepEqual(dat, sess.Data()) {
 		t.Error(tlog.GetWantedHad("data in session not expected", dat, sess.Data()))
 	}
 }

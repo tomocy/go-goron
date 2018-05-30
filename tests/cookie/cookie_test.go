@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/tomocy/goron/helper"
 	"github.com/tomocy/goron/log/tlog"
 
 	"github.com/tomocy/goron/session/cookie"
@@ -15,7 +16,7 @@ import (
 
 func TestGetSessionID(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://192.168.55.55:8080/count", nil)
-	sessID1 := generateSessionID()
+	sessID1 := helper.GenerateSessionID()
 	req.AddCookie(&http.Cookie{
 		Name:    settings.Session.Name,
 		Value:   sessID1,
@@ -34,7 +35,7 @@ func TestGetSessionID(t *testing.T) {
 }
 
 func TestSetSessionID(t *testing.T) {
-	sessID := generateSessionID()
+	sessID := helper.GenerateSessionID()
 	rec := httptest.NewRecorder()
 
 	// function to be tested

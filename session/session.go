@@ -22,7 +22,7 @@ type session struct {
 }
 
 func New(id string, expiresAt time.Time, dat map[string]string) Session {
-	// allocate new memroy to data
+	// create new map and copy dat to it
 	newDat := make(map[string]string)
 	for k, v := range dat {
 		newDat[k] = v

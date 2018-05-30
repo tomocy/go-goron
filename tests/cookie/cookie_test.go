@@ -3,6 +3,7 @@ package cookie
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -29,5 +30,19 @@ func TestGetSessionID(t *testing.T) {
 
 	if sessID1 != sessID2 {
 		t.Errorf(tlog.GetWantedHad("session id not expected", sessID1, sessID2))
+	}
+}
+
+func TestSetSessionID(t *testing.T) {
+	sessID := generateSessionID()
+	rec := httptest.NewRecorder()
+
+	// function to be tested
+	cookie.SetSessionID(rec, sessID)
+
+	setCookie := rec.HeaderMap.Get("Set-Cookie")
+	sessInfo := getSessionInfo(sessID)
+	if !strings.Contains(setCookie, sessInfo) {
+		t.Errorf(tlog.GetWantedHad("session info not expected", sessInfo, setCookie))
 	}
 }

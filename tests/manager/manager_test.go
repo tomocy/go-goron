@@ -30,11 +30,69 @@ func tearDown() {
 }
 
 func TestGetSession(t *testing.T) {
-	t.Run("No cookie", onNoCookie)
-	t.Run("No session while cookie exists", onNoSession)
-	t.Run("Session expires", onSessionExpired)
+	t.Run("No cookie", testOnNoCookie)
+	t.Run("No session while cookie exists", testOnNoSession)
+	t.Run("Session expires", testOnSessionExpired)
 }
 
+func testOnNoCookie(t *testing.T) {
+	mt, err := setUpManagerTest()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sess1 := mt.m.GetSession(mt.rec, mt.req)
+	sess2 := mt.m.GetSession(mt.rec, mt.req)
+
+	if sess1.ID() == sess2.ID() {
+		t.Error("Session ids are same mainly because manager cannot recreate session when no session id in cookie")
+	}
+}
+
+func testOnNoSession(t *testing.T) {
+	mt, err := setUpManagerTest()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	strg := file.New()
+	sess1 := strg.InitSession("test")
+
+	mt.req.AddCookie(&http.Cookie{
+		Name:    settings.Session.Name,
+		Value:   sess1.ID(),
+		Expires: sess1.ExpiresAt(),
+	})
+
+	err = deleteSession(sess1.ID())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sess2 := mt.m.GetSession(mt.rec, mt.req)
+
+	if sess1.ID() == sess2.ID() {
+		t.Errorf("Session ids are same mainly because manager could not recreate session though no the session in server")
+	}
+}
+
+func testOnSessionExpired(t *testing.T) {
+	mt, err := setUpManagerTest()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	strg := file.New()
+	sess1 := strg.InitSession("test")
+
+	makeSessionExpires(mt.m, sess1)
+
+	sess2 := mt.m.GetSession(mt.rec, mt.req)
+
+	if sess1.ID() == sess2.ID() {
+		t.Error("Session ids are same mainly because manager could not recreate session though the former session expires")
+	}
+}
 func TestSetSession(t *testing.T) {
 	strg := file.New()
 	sess1ID := "test"

@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/tomocy/goron/helper"
 	"github.com/tomocy/goron/log/tlog"
 	"github.com/tomocy/goron/session/storages/file"
 	"github.com/tomocy/goron/settings"
@@ -29,7 +30,7 @@ func tearDown() {
 
 func TestInitSession(t *testing.T) {
 	f := file.New()
-	sessID := generateSessionID()
+	sessID := helper.GenerateSessionID()
 
 	// functino to be tested
 	sess := f.InitSession(sessID)
@@ -50,7 +51,7 @@ func TestInitSession(t *testing.T) {
 
 func TestGetSession(t *testing.T) {
 	f := file.New()
-	sess1ID := generateSessionID()
+	sess1ID := helper.GenerateSessionID()
 	sess1 := f.InitSession(sess1ID)
 
 	// function to be tested
@@ -73,7 +74,7 @@ func TestGetSession(t *testing.T) {
 
 func TestSetSession(t *testing.T) {
 	f := file.New()
-	sess1ID := generateSessionID()
+	sess1ID := helper.GenerateSessionID()
 	sess1 := f.InitSession(sess1ID)
 
 	dat := map[string]string{
@@ -106,7 +107,7 @@ func TestSetSession(t *testing.T) {
 
 func TestDeleteSession(t *testing.T) {
 	f := file.New()
-	sessID := generateSessionID()
+	sessID := helper.GenerateSessionID()
 	sess := f.InitSession(sessID)
 
 	// function to be tested

@@ -25,19 +25,10 @@ type manager struct {
 	probOfDeleteDivisor int
 }
 
-func New(storageName string) (*manager, error) {
-	storage, err := storages.Get(storageName)
-	if err != nil {
-		return nil, fmt.Errorf("Storage not found: %s", storageName)
-	}
+var m *manager
 
-	m := &manager{
-		storage:             storage,
-		probOfDelete:        settings.SessionManager.ProbOfDelete,
-		probOfDeleteDivisor: settings.SessionManager.ProbOfDeleteDivisor,
-	}
-
-	return m, nil
+func GetReady() *manager {
+	return m
 }
 
 func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Session {
@@ -104,4 +95,29 @@ func (m *manager) doesDelete() bool {
 
 func generateSessionID() string {
 	return uuid.New().String()
+}
+
+func new(storageName string) (*manager, error) {
+	storage, err := storages.Get(storageName)
+	if err != nil {
+		return nil, fmt.Errorf("Storage not found: %s", storageName)
+	}
+
+	m := &manager{
+		storage:             storage,
+		probOfDelete:        settings.SessionManager.ProbOfDelete,
+		probOfDeleteDivisor: settings.SessionManager.ProbOfDeleteDivisor,
+	}
+
+	return m, nil
+}
+
+func init() {
+	var err error
+	m, err = new(settings.Session.Storage)
+	if err != nil {
+		panic(err)
+	}
+
+	go m.DeleteExpiredSessions()
 }

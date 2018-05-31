@@ -19,6 +19,7 @@ func init() {
 	templates = make(map[string]*tmpl.Template)
 	templates["error"] = tmpl.Must(tmpl.ParseFiles(base, "views/layouts/error.html"))
 	templates["countIndex"] = tmpl.Must(tmpl.ParseFiles(base, "views/count.html"))
+	templates["testIndex"] = tmpl.Must(tmpl.ParseFiles(base, "views/test.html"))
 }
 
 func New() Template {

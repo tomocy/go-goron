@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/tomocy/goron/session/manager"
-	"github.com/tomocy/goron/settings"
 	"github.com/tomocy/goron/template"
 )
 
@@ -37,10 +36,5 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 func init() {
 	tmpl = template.New()
-
-	var err error
-	sessionManager, err = manager.New(settings.Session.Storage)
-	if err != nil {
-		panic(err)
-	}
+	sessionManager = manager.GetReady()
 }

@@ -5,15 +5,6 @@ import (
 	"time"
 )
 
-// type Session interface {
-// 	Set(k string, v string)
-// 	Get(k string) string
-// 	ID() string
-// 	ExpiresAt() time.Time
-// 	Data() map[string]string
-// 	DoesExpire() bool
-// }
-
 type Session struct {
 	id        string
 	dat       map[string]string

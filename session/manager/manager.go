@@ -13,12 +13,6 @@ import (
 	"github.com/tomocy/goron/settings"
 )
 
-// type Manager interface {
-// 	GetSession(w http.ResponseWriter, r *http.Request) session.Session
-// 	SetSession(session session.Session)
-// 	DeleteExpiredSessions()
-// }
-
 type Manager struct {
 	storage             storages.Storage
 	probOfDelete        int

@@ -31,7 +31,7 @@ func GetReady() *Manager {
 	return m
 }
 
-func (m *Manager) GetSession(w http.ResponseWriter, r *http.Request) session.Session {
+func (m *Manager) GetSession(w http.ResponseWriter, r *http.Request) *session.Session {
 	sessionID, err := cookie.GetSessionID(r)
 	if err != nil {
 		// No session id in client
@@ -55,7 +55,7 @@ func (m *Manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 	return session
 }
 
-func (m *Manager) SetSession(session session.Session) {
+func (m *Manager) SetSession(session *session.Session) {
 	m.storage.SetSession(session)
 }
 
@@ -73,7 +73,7 @@ func (m *Manager) deleteExpiredSessions() {
 	}
 }
 
-func (m *Manager) recreateSession(w http.ResponseWriter) session.Session {
+func (m *Manager) recreateSession(w http.ResponseWriter) *session.Session {
 	sessionID := generateSessionID()
 	cookie.SetSessionID(w, sessionID)
 

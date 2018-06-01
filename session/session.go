@@ -5,39 +5,39 @@ import (
 	"time"
 )
 
-type Session interface {
-	Set(k string, v string)
-	Get(k string) string
-	ID() string
-	ExpiresAt() time.Time
-	Data() map[string]string
-	DoesExpire() bool
-}
+// type Session interface {
+// 	Set(k string, v string)
+// 	Get(k string) string
+// 	ID() string
+// 	ExpiresAt() time.Time
+// 	Data() map[string]string
+// 	DoesExpire() bool
+// }
 
-type session struct {
+type Session struct {
 	id        string
 	dat       map[string]string
 	expiresAt time.Time
 	mu        sync.Mutex
 }
 
-func New(id string, expiresAt time.Time, dat map[string]string) Session {
+func New(id string, expiresAt time.Time, dat map[string]string) *Session {
 	// create new map and copy dat to it
 	newDat := make(map[string]string)
 	for k, v := range dat {
 		newDat[k] = v
 	}
-	return &session{id: id, dat: newDat, expiresAt: expiresAt}
+	return &Session{id: id, dat: newDat, expiresAt: expiresAt}
 }
 
-func (s *session) Set(k string, v string) {
+func (s *Session) Set(k string, v string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.dat[k] = v
 }
 
-func (s *session) Get(k string) string {
+func (s *Session) Get(k string) string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -49,19 +49,19 @@ func (s *session) Get(k string) string {
 	return v
 }
 
-func (s *session) ID() string {
+func (s *Session) ID() string {
 	return s.id
 }
 
-func (s *session) ExpiresAt() time.Time {
+func (s *Session) ExpiresAt() time.Time {
 	return s.expiresAt
 }
 
-func (s *session) Data() map[string]string {
+func (s *Session) Data() map[string]string {
 	return s.dat
 }
 
-func (s *session) DoesExpire() bool {
+func (s *Session) DoesExpire() bool {
 	if s.expiresAt.Before(time.Now()) {
 		return true
 	}

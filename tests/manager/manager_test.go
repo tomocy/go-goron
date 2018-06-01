@@ -14,7 +14,7 @@ import (
 )
 
 type managerTest struct {
-	m   manager.Manager
+	m   *manager.Manager
 	rec *httptest.ResponseRecorder
 	req *http.Request
 }
@@ -106,10 +106,8 @@ func TestSetSession(t *testing.T) {
 		sess1.Set(k, v)
 	}
 
-	m, err := manager.New(settings.Session.Storage)
-	if err != nil {
-		t.Fatal(err)
-	}
+	m := manager.GetReady()
+
 	m.SetSession(sess1)
 
 	sess2, err := strg.GetSession(sess1ID)
@@ -131,12 +129,9 @@ func TestSetSession(t *testing.T) {
 }
 
 func TestDeleteExpiredSessions(t *testing.T) {
-	m, err := manager.New(settings.Session.Storage)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// m := manager.GetReady()
 
-	go m.DeleteExpiredSessions()
+	// go m.DeleteExpiredSessions()
 
 	time.Sleep(1 * time.Second)
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/tomocy/goron/settings"
 )
 
-var sessions = make(map[string]session.Session)
+var sessions = make(map[string]*session.Session)
 
 type memory struct {
 	mu sync.Mutex
@@ -19,7 +19,7 @@ func New() *memory {
 	return &memory{}
 }
 
-func (m *memory) InitSession(sessionID string) session.Session {
+func (m *memory) InitSession(sessionID string) *session.Session {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -29,7 +29,7 @@ func (m *memory) InitSession(sessionID string) session.Session {
 	return sessions[sessionID]
 }
 
-func (m *memory) GetSession(sessionID string) (session.Session, error) {
+func (m *memory) GetSession(sessionID string) (*session.Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -41,7 +41,7 @@ func (m *memory) GetSession(sessionID string) (session.Session, error) {
 	return session, nil
 }
 
-func (m *memory) SetSession(session session.Session) {
+func (m *memory) SetSession(session *session.Session) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 

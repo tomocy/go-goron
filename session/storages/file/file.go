@@ -38,21 +38,21 @@ func New() *file {
 	return &file{path: DstDir}
 }
 
-func (f *file) InitSession(sessionID string) session.Session {
+func (f *file) InitSession(sessionID string) *session.Session {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
 	return f.initSession(sessionID)
 }
 
-func (f *file) GetSession(sessionID string) (session.Session, error) {
+func (f *file) GetSession(sessionID string) (*session.Session, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
 	return f.getSession(sessionID)
 }
 
-func (f *file) SetSession(session session.Session) {
+func (f *file) SetSession(session *session.Session) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
@@ -84,7 +84,7 @@ func (f *file) DeleteExpiredSessions() {
 	}
 }
 
-func (f *file) initSession(sessionID string) session.Session {
+func (f *file) initSession(sessionID string) *session.Session {
 	name := f.path + "/" + sessionID
 	file, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
@@ -101,7 +101,7 @@ func (f *file) initSession(sessionID string) session.Session {
 	return session
 }
 
-func (f *file) getSession(sessionID string) (session.Session, error) {
+func (f *file) getSession(sessionID string) (*session.Session, error) {
 	file, err := os.Open(f.path + "/" + sessionID)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (f *file) getSession(sessionID string) (session.Session, error) {
 	return session.New(sessionID, expiresAt, dat), nil
 }
 
-func (f *file) setSession(session session.Session) {
+func (f *file) setSession(session *session.Session) {
 	file, err := os.OpenFile(f.path+"/"+session.ID(), os.O_WRONLY, 0755)
 	if err != nil {
 		panic(err)

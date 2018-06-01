@@ -13,25 +13,25 @@ import (
 	"github.com/tomocy/goron/settings"
 )
 
-type Manager interface {
-	GetSession(w http.ResponseWriter, r *http.Request) session.Session
-	SetSession(session session.Session)
-	DeleteExpiredSessions()
-}
+// type Manager interface {
+// 	GetSession(w http.ResponseWriter, r *http.Request) session.Session
+// 	SetSession(session session.Session)
+// 	DeleteExpiredSessions()
+// }
 
-type manager struct {
+type Manager struct {
 	storage             storages.Storage
 	probOfDelete        int
 	probOfDeleteDivisor int
 }
 
-var m *manager
+var m *Manager
 
-func GetReady() *manager {
+func GetReady() *Manager {
 	return m
 }
 
-func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Session {
+func (m *Manager) GetSession(w http.ResponseWriter, r *http.Request) session.Session {
 	sessionID, err := cookie.GetSessionID(r)
 	if err != nil {
 		// No session id in client
@@ -55,11 +55,11 @@ func (m *manager) GetSession(w http.ResponseWriter, r *http.Request) session.Ses
 	return session
 }
 
-func (m *manager) SetSession(session session.Session) {
+func (m *Manager) SetSession(session session.Session) {
 	m.storage.SetSession(session)
 }
 
-func (m *manager) DeleteExpiredSessions() {
+func (m *Manager) DeleteExpiredSessions() {
 	t := time.NewTicker(1 * time.Minute)
 	defer t.Stop()
 
@@ -73,14 +73,14 @@ func (m *manager) DeleteExpiredSessions() {
 	}
 }
 
-func (m *manager) recreateSession(w http.ResponseWriter) session.Session {
+func (m *Manager) recreateSession(w http.ResponseWriter) session.Session {
 	sessionID := generateSessionID()
 	cookie.SetSessionID(w, sessionID)
 
 	return m.storage.InitSession(sessionID)
 }
 
-func (m *manager) doesDelete() bool {
+func (m *Manager) doesDelete() bool {
 	if m.probOfDelete <= 0 {
 		return false
 	}
@@ -97,13 +97,13 @@ func generateSessionID() string {
 	return uuid.New().String()
 }
 
-func new(storageName string) (*manager, error) {
+func new(storageName string) (*Manager, error) {
 	storage, err := storages.Get(storageName)
 	if err != nil {
 		return nil, fmt.Errorf("Storage not found: %s", storageName)
 	}
 
-	m := &manager{
+	m := &Manager{
 		storage:             storage,
 		probOfDelete:        settings.SessionManager.ProbOfDelete,
 		probOfDeleteDivisor: settings.SessionManager.ProbOfDeleteDivisor,

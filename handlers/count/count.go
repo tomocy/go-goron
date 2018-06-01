@@ -9,7 +9,7 @@ import (
 	"github.com/tomocy/goron/template"
 )
 
-var sessionManager manager.Manager
+var sessionManager *manager.Manager
 var tmpl template.Template
 
 func Index(w http.ResponseWriter, r *http.Request) {

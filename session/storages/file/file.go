@@ -93,7 +93,7 @@ func (f *file) initSession(sessionID string) *session.Session {
 	defer file.Close()
 
 	dat := make(map[string]string)
-	session := session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn), dat)
+	session := session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn()), dat)
 
 	// Write when it expires
 	fmt.Fprintln(file, ExpiresAtKey+Delimiter+session.ExpiresAt().Format(TimeLayout))

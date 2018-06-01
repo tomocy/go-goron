@@ -99,8 +99,8 @@ func new(storageName string) (*Manager, error) {
 
 	m := &Manager{
 		storage:             storage,
-		probOfDelete:        settings.SessionManager.ProbOfDelete,
-		probOfDeleteDivisor: settings.SessionManager.ProbOfDeleteDivisor,
+		probOfDelete:        settings.SessionManager.ProbOfDelete(),
+		probOfDeleteDivisor: settings.SessionManager.ProbOfDeleteDivisor(),
 	}
 
 	return m, nil
@@ -108,7 +108,7 @@ func new(storageName string) (*Manager, error) {
 
 func init() {
 	var err error
-	m, err = new(settings.Session.Storage)
+	m, err = new(settings.Session.Storage())
 	if err != nil {
 		panic(err)
 	}

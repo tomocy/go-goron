@@ -44,7 +44,7 @@ func TestInitSession(t *testing.T) {
 		t.Error(tlog.GetWantedHad("could not init session with empty data", emptData, sess.Data()))
 	}
 
-	if sess.ExpiresAt().Add(-1 * settings.Session.ExpiresIn).After(time.Now()) {
+	if sess.ExpiresAt().Add(-1 * settings.Session.ExpiresIn()).After(time.Now()) {
 		t.Error("could not set session expires as settings")
 	}
 }

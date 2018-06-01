@@ -18,9 +18,9 @@ func TestGetSessionID(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://192.168.55.55:8080/count", nil)
 	sessID1 := helper.GenerateSessionID()
 	req.AddCookie(&http.Cookie{
-		Name:    settings.Session.Name,
+		Name:    settings.Session.Name(),
 		Value:   sessID1,
-		Expires: time.Now().Add(settings.Session.ExpiresIn),
+		Expires: time.Now().Add(settings.Session.ExpiresIn()),
 	})
 
 	// function to be tested

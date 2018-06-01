@@ -24,7 +24,7 @@ func (m *memory) InitSession(sessionID string) *session.Session {
 	defer m.mu.Unlock()
 
 	dat := make(map[string]string)
-	sessions[sessionID] = session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn), dat)
+	sessions[sessionID] = session.New(sessionID, time.Now().Add(settings.Session.ExpiresIn()), dat)
 
 	return sessions[sessionID]
 }

@@ -59,7 +59,7 @@ func testOnNoSession(t *testing.T) {
 	sess1 := strg.InitSession("test")
 
 	mt.req.AddCookie(&http.Cookie{
-		Name:    settings.Session.Name,
+		Name:    settings.Session.Name(),
 		Value:   sess1.ID(),
 		Expires: sess1.ExpiresAt(),
 	})

@@ -7,3 +7,13 @@ type cookie struct {
 }
 
 var Cookie *cookie
+
+func (c *cookie) SetExpiresIn(expIn time.Duration) {
+	c.ExpiresIn = expIn
+}
+
+func init() {
+	Cookie = &cookie{
+		ExpiresIn: 1 * time.Hour,
+	}
+}

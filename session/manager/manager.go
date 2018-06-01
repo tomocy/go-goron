@@ -59,7 +59,7 @@ func (m *Manager) SetSession(session session.Session) {
 	m.storage.SetSession(session)
 }
 
-func (m *Manager) DeleteExpiredSessions() {
+func (m *Manager) deleteExpiredSessions() {
 	t := time.NewTicker(1 * time.Minute)
 	defer t.Stop()
 
@@ -119,5 +119,5 @@ func init() {
 		panic(err)
 	}
 
-	go m.DeleteExpiredSessions()
+	go m.deleteExpiredSessions()
 }
